@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        section {
+            background: pink;
+            border: 3px solid black;
+            padding: 5px;
+            width: fit-content;
+            height: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        Input the number of decimal places to be used (integer only):
+        <input type="number" id="p" placeholder="4" required min="0" /><br />
+        Input the base of the first number (integer only):
+        <input type="number" id="r1" placeholder="2-36" required min="2" max="36" /><br />
+        Input the first number:
+        <input type="text" id="n1" placeholder="0" required min="0" /><br />
+        Input the base of the second number (integer only):
+        <input type="number" id="r2" placeholder="2-36" required min="2" max="36" /><br />
+        Input the second number:
+        <input type="text" id="n2" placeholder="0" required min="0" /><br />
+
+        Input the base of the result (integer only):
+        <input type="number" id="r3" placeholder="2-36" required min="2" max="36" /><br />
+
+        <input type="button" id="addbtn" value="+" />
+        <input type="button" id="subbtn" value="-" />
+        <input type="button" id="mulbtn" value="x" />
+        <input type="button" id="divbtn" value="/" /><br />
+        Result:
+        <input type="text" id="output" />
+    </section>
+    <script>
+
+        const c2o = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ];
+
+        const P = document.getElementById('p');
+        const R1 = document.getElementById('r1');
+        const N1 = document.getElementById('n1');
+        const N2 = document.getElementById('n2');
+        const R2 = document.getElementById('r2');
+        const R3 = document.getElementById('r3');
+        const AddBtn = document.getElementById('addbtn');
+        const SubBtn = document.getElementById('subbtn');
+        const MulBtn = document.getElementById('mulbtn');
+        const DivBtn = document.getElementById('divbtn');
+        const Output = document.getElementById('output');
+
+        function R2Dec(n, r) {
+            var res = 0.0;
+            if (n.includes('.')) {
+                let [integer_part, fractional_part] = n.split('.');
+                for (var i = 0; i < integer_part.length; i++) {
+                    let temp = c2o.indexOf(integer_part[i]);
+                    if (temp >= r) return -1;
+                    res += temp * r ** (integer_part.length - 1 - i);
+                }
+                for (var j = 0; j < fractional_part.length; j++) {
+                    let temp = c2o.indexOf(fractional_part[j]);
+                    if (temp >= r) return -1;
+                    res += temp * r ** (-1 - j);
+                }
+            }
+            else {
+                for (var i = 0; i < n.length; i++) {
+                    let temp = c2o.indexOf(n[i]);
+                    if (temp >= r) return -1;
+                    res += temp * r ** (n.length - 1 - i);
+                }
+            }
+
+            return res
+        }
+
+        function Dec2R(n, r) {
+            if (Number(n) < 0) return -1;
+            var res = '';
+            if (n.includes('.')) {
+                var integer_part = parseInt(n);
+                var fractional_part = parseFloat(n) - integer_part;
+                while (integer_part > 0) {
+                    res = c2o[integer_part % r] + res;
+                    integer_part = parseInt(integer_part / r);
+                }
+                res += '.';
+                for (var i = 0; i < P.value; i++) {
+                    let temp = fractional_part * r;
+                    res += c2o[parseInt(temp)];
+                    fractional_part = temp - parseInt(temp);
+                    if (fractional_part == 0) break;
+                }
+
+            }
+            else {
+                n = parseInt(n);
+                while (n > 0) {
+                    res = c2o[n % r] + res;
+                    n = parseInt(n / r);
+                }
+            }
+
+            if (res == '') res = '0';
+
+            return res;
+        }
+
+        function CheckParams() {
+            if (Number(R1.value) != parseInt(R1.value)) return false;
+            if (Number(R2.value) != parseInt(R2.value)) return false;
+            if (Number(P.value) != parseInt(P.value)) return false;
+            if (parseInt(R1.value) < 2 || parseInt(R2.value) < 2) return false;
+            if (parseInt(R1.value) > 36 || parseInt(R2.value) > 36) return false;
+            if (Number(N1.value) < 0) return false;
+            if (Number(N2.value) < 0) return false;
+            if (parseInt(P.value) < 0) return false;
+            return true;
+        }
+
+        function add() {
+            let res = CheckParams();
+            if (res == true) {
+                let sum = R2Dec(N1.value, parseInt(R1.value)) + R2Dec(N2.value, parseInt(R2.value));
+                Output.value = Dec2R(sum.toString(), parseInt(R3.value));
+            }
+            else
+                Output.value = "ERROR";
+        }
+
+        function subtract() {
+            let res = CheckParams();
+            if (res == true) {
+                let difference = R2Dec(N1.value, parseInt(R1.value)) - R2Dec(N2.value, parseInt(R2.value));
+                console.log(typeof (difference.toString()));
+                if (difference < 0) {
+                    Output.value = "-" + Dec2R((-difference).toString(), parseInt(R3.value));
+                }
+                else {
+                    Output.value = Dec2R((difference).toString(), parseInt(R3.value));
+                }
+            }
+            else
+                Output.value = "ERROR";
+        }
+
+        function multiply() {
+            let res = CheckParams();
+            if (res == true) {
+                let product = R2Dec(N1.value, parseInt(R1.value)) * R2Dec(N2.value, parseInt(R2.value));
+                Output.value = Dec2R(product.toString(), parseInt(R3.value));
+            }
+            else
+                Output.value = "ERROR";
+        }
+
+        function divide() {
+            let res = CheckParams();
+            if (res == true) {
+                let quotient = R2Dec(N1.value, parseInt(R1.value)) / R2Dec(N2.value, parseInt(R2.value)).toFixed(parseInt(P.value) * 2);
+                Output.value = Dec2R(quotient.toString(), parseInt(R3.value));
+            }
+            else
+                Output.value = "ERROR";
+        }
+
+        AddBtn.addEventListener('click', add);
+        SubBtn.addEventListener('click', subtract);
+        MulBtn.addEventListener('click', multiply);
+        DivBtn.addEventListener('click', divide);
+
+    </script>
+
+</body>
+</html>
