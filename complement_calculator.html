@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        section {
+            background: pink;
+            border: 3px solid black;
+            padding: 5px;
+            width: fit-content;
+            height: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        Input the number of decimal places to be used (integer only):
+        <input type="number" id="p" placeholder="4" required min="0" /><br />
+        Input the base of the number (integer only):
+        <input type="number" id="r" placeholder="2-36" required min="2" max="36" /><br />
+        Input the number to be converted (add leading and/or trailing zeros if needed):
+        <input type="text" id="n" placeholder="0" required min="0" /><br />
+        <input type="button" id="btn1" value="CONVERT NUMBER" /><br />
+        <p id="output">The outputs appear here</p>
+    </section>
+    <script>
+
+        const c2o = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ];
+
+        const P = document.getElementById('p');
+        const R = document.getElementById('r');
+        const N = document.getElementById('n');
+        const Btn1 = document.getElementById('btn1');
+        const Output = document.getElementById('output');
+
+        function R2Dec(n, r) {
+            var res = 0.0;
+            if (n.includes('.')) {
+                let [integer_part, fractional_part] = n.split('.');
+                for (var i = 0; i < integer_part.length; i++) {
+                    let temp = c2o.indexOf(integer_part[i]);
+                    if (temp >= r) return -1;
+                    res += temp * r ** (integer_part.length - 1 - i);
+                }
+                for (var j = 0; j < fractional_part.length; j++) {
+                    let temp = c2o.indexOf(fractional_part[j]);
+                    if (temp >= r) return -1;
+                    res += temp * r ** (-1 - j);
+                }
+            }
+            else {
+                for (var i = 0; i < n.length; i++) {
+                    let temp = c2o.indexOf(n[i]);
+                    if (temp >= r) return -1;
+                    res += temp * r ** (n.length - 1 - i);
+                }
+            }
+
+            return res
+        }
+
+        function GetLengthOfIntegerPart(n) {
+            if (Number(n) < 0) return -1;
+            if (n.includes('.')) {
+                var i = n.indexOf('.');
+                return i;
+            }
+            return n.length;
+        }
+
+        function GetLengthOfFractionalPart(n) {
+            if (Number(n) < 0) return -1;
+            if (n.includes('.')) {
+                var i = n.indexOf('.');
+                return n.length - i;
+            }
+            return 0;
+        }
+
+        function Dec2R(n, r) {
+            if (Number(n) < 0) return -1;
+            var res = '';
+            if (n.includes('.')) {
+                var integer_part = parseInt(n);
+                var fractional_part = parseFloat(n) - integer_part;
+                while (integer_part > 0) {
+                    res = c2o[integer_part % r] + res;
+                    integer_part = parseInt(integer_part / r);
+                }
+                res += '.';
+                for (var i = 0; i < P.value; i++) {
+                    let temp = fractional_part * r;
+                    res += c2o[parseInt(temp)];
+                    fractional_part = temp - parseInt(temp);
+                    if (fractional_part == 0) break;
+                }
+
+            }
+            else {
+                n = parseInt(n);
+                while (n > 0) {
+                    res = c2o[n % r] + res;
+                    n = parseInt(n / r);
+                }
+            }
+
+            if (res == '') res = '0';
+
+            return res;
+        }
+
+        function CheckParams() {
+            if (Number(R.value) != parseInt(R.value)) return false;
+            if (Number(P.value) != parseInt(P.value)) return false;
+            if (parseInt(R.value) < 2) return false;
+            if (parseInt(R.value) > 36) return false;
+            if (Number(N.value) < 0) return false;
+            if (parseInt(P.value) < 0) return false;
+            return true;
+        }
+
+        function calculate() {
+            let res = CheckParams();
+            if (res == true) {
+                let n = GetLengthOfIntegerPart(N.value);
+                let m = GetLengthOfFractionalPart(N.value);
+                //console.log(n);
+                //console.log(parseInt(R.value) ** n - R2Dec(N.value, parseInt(R.value)));
+                let r_complement = Dec2R((parseInt(R.value) ** n - R2Dec(N.value, parseInt(R.value))).toString(), parseInt(R.value));
+                let r1_complement = Dec2R((parseInt(R.value) ** n - parseInt(R.value)**(-m) - R2Dec(N.value, parseInt(R.value))).toString(), parseInt(R.value));
+                Output.innerHTML = parseInt(R.value).toString() + "\'s complement: " + r_complement.toString() + '\n' + (parseInt(R.value) - 1).toString() + "\'s complement: " + r1_complement.toString();
+            }
+            else
+                Output.innerHTML = "ERROR";
+        }
+
+        btn1.addEventListener('click', calculate);
+
+    </script>
+
+</body>
+</html>
