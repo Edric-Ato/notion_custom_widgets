@@ -74,7 +74,7 @@
             if (Number(n) < 0) return -1;
             if (n.includes('.')) {
                 var i = n.indexOf('.');
-                return n.length - i;
+                return n.length - i - 1;
             }
             return 0;
         }
