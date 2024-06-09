@@ -12,14 +12,12 @@
       import { Octokit } from "https://esm.sh/@octokit/rest";
       const octokit = new Octokit({ });
       
-      await octokit.request("GET /repos/Edric-Ato/notion_custom_widgets/contents/", {
+      const data = await octokit.request("GET /repos/Edric-Ato/notion_custom_widgets/contents/", {
         owner: "Edric-Ato",
         repo: "notion_custom_widgets"
-      }).done((data)=>{
-        console.log(data);
-
       });
 
+      console.log(typeof(data));
       
     </script>
   </body>
