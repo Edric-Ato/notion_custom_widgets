@@ -8,18 +8,14 @@
     </ul>
 
     <script>
-      const url = "https://github.com/Edric-Ato/notion_custom_widgets";
 
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-
-      xhr.onload = function(){
-        const data = JSON.parse(this.response);
-
-        console.log(data);
-      }
-
-      xhr.send();
+      $(document).ready(function(){
+        $.ajax({
+          url: 'https://github.com/Edric-Ato/notion_custom_widgets'
+        }).done(function(data){
+          console.log(data);
+        };
+      });
       
     </script>
   </body>
