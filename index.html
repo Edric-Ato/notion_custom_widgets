@@ -19,6 +19,8 @@
         });
 
         for (var name of data.data) {
+            if (name.name == "index.html") continue;
+
             var li = document.createElement('li');
             var a = document.createElement('a');
             a.href = "https://edric-ato.github.io/notion_custom_widgets/" + name.name;
