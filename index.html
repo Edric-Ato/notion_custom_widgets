@@ -1,28 +1,32 @@
 <html>
-  <head>
-    
-  </head>
-  <body>
-    <ul class = "navigation">
-      
+<head>
+
+</head>
+<body>
+    <ul class="navigation">
     </ul>
 
     <script type="module">
 
-      import { Octokit } from "https://esm.sh/@octokit/rest";
-      const octokit = new Octokit({ });
-      
-      const data = await octokit.request("GET /repos/Edric-Ato/notion_custom_widgets/contents/", {
-        owner: "Edric-Ato",
-        repo: "notion_custom_widgets"
-      });
-      
-      console.log(Object.getOwnPropertyNames(data.data))
+        const navigation = document.querySelector('.navigation');
 
-      for(var name in data.data){
-        console.log(name);
-      }
-      
+        import { Octokit } from "https://esm.sh/@octokit/rest";
+        const octokit = new Octokit({});
+
+        const data = await octokit.request("GET /repos/Edric-Ato/notion_custom_widgets/contents/", {
+            owner: "Edric-Ato",
+            repo: "notion_custom_widgets"
+        });
+
+        for (var name of data.data) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.href = "https://edric-ato.github.io/notion_custom_widgets/" + name.name;
+            a.innerHTML = name.name;
+            li.appendChild(a);
+            navigation.appendChild(li);
+        }
+
     </script>
-  </body>
+</body>
 </html>
