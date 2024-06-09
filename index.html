@@ -9,7 +9,7 @@
 
     <script type="module">
 
-      import { Octokit } from "octokit";
+      import { Octokit } from "https://esm.sh/@octokit/rest";
       const octokit = new Octokit({ });
       
       const data = await octokit.request("GET /repos/Edric-Ato/notion_custom_widgets/", {
