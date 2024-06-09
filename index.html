@@ -9,12 +9,12 @@
 
     <script>
 
-      $(document).ready(function(){
-        $.ajax({
-          url: 'https://github.com/Edric-Ato/notion_custom_widgets'
-        }).done(function(data){
-          console.log(data);
-        });
+      import { Octokit } from "octokit";
+      const octokit = new Octokit({ });
+      
+      const data = await octokit.request("GET /repos/Edric-Ato/notion_custom_widgets/", {
+        owner: "Edric-Ato",
+        repo: "notion_custom_widgets"
       });
       
     </script>
