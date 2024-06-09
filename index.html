@@ -17,7 +17,7 @@
         repo: "notion_custom_widgets"
       });
       
-      console.log((data.data).getOwnPropertyNames())
+      console.log(Object.getOwnPropertyNames(data.data))
 
       for(var name in data.data){
         console.log(name);
