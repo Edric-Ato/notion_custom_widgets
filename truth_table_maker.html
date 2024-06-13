@@ -150,7 +150,7 @@
             if (event.target.tagName === 'BUTTON') {
                 const button = event.target;
                 if (preview.length > 0)
-                    if (variables.includes(preview[preview.length - 1])) return;
+                    if (variables.includes(preview[preview.length - 1]) || ['\'', ')'].includes(preview[preview.length - 1])) return;
                 preview += variables[variables.indexOf(button.innerHTML)];
                 UpdateEquation();
             }
