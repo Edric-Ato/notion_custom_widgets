@@ -52,10 +52,11 @@
         </script>
         <br />
         Input Number of Variables:
-        <input type="number" id="numvar" required min="1" max="4" value="1" /> <br />
+        <input type="number" id="numvar" required min="1" max="4" value="2" /> <br />
         <button id="evaluate">Evaluate KMap</button>
         <div class="Given_Equation">
             Equation: <br />
+            Click the buttons to create the equation<br />
             <div class="varnames">
                 <ul class="variables">
                 </ul>
@@ -74,12 +75,14 @@
         
         <div class="Given_TruthTable">
             Truth Table: <br />
+            <span class="TT_instructions">Click the buttons to change the boolean state</span>
             <table id="Truth Table">
             </table>
         </div>
 
         <div class="Given_KMap">
             K-Map: <br />
+            <span class="KM_instructions">Click the buttons to change the boolean state</span>
             <table id="KMap">
             </table>
         </div>
@@ -101,6 +104,9 @@
 
         const VarNames = document.querySelector('.varnames');
         const BoolFunctions = document.querySelector('.toolfunctions');
+
+        const TT_Instructions = document.querySelector('.TT_instructions');
+        const KM_Instructions = document.querySelector('.KM_instructions');
 
         const Output = document.getElementById('output');
         const KMap = document.getElementById('KMap');
@@ -424,7 +430,10 @@
                 KMap.removeChild(KMap.firstChild);
             }
 
+            KM_Instructions.style.display = 'none';
+
             if (isActive) {
+                KM_Instructions.style.display = 'block';
                 for (var i = 0; i < rows; i++) {
                     var row = [];
                     for (var j = 0; j < columns; j++) {
@@ -594,7 +603,10 @@
                 TruthTable.removeChild(TruthTable.firstChild);
             }
 
+            TT_Instructions.style.display = 'none';
+
             if (isActive) {
+                TT_Instructions.style.display = 'block';
                 for (var i = 0; i < 2 ** numvar; i++) tTable.push('0');
             }
 
