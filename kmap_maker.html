@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        section {
+            background: pink;
+            border: 3px solid black;
+            padding: 5px;
+            width: auto;
+            height: fit-content;
+        }
+
+        div {
+            display: none;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 1px;
+            padding: 1px;
+            overflow: auto;
+        }
+
+        li {
+            float: left;
+        }
+
+        table {
+            width: auto;
+            border-collapse: collapse;
+        }
+
+        tr, td, th {
+            border: 1px solid;
+            border-collapse: collapse;
+            width: 25px;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        Given:
+        <select id="given">
+            <option value="Input Map">Input Map</option>
+            <option value="Truth Table">Truth Table</option>
+            <option value="Equation">Equation</option>
+        </select>
+        <script>
+        </script>
+        <br />
+        Input Number of Variables:
+        <input type="number" id="numvar" required min="1" max="4" value="1" /> <br />
+        <button id="evaluate">Evaluate KMap</button>
+        <div class="Given_Equation">
+            Equation: <br />
+            <div class="varnames">
+                <ul class="variables">
+                </ul>
+            </div>
+            <div class="toolfunctions">
+                <button type="button">AND</button>
+                <button type="button">OR</button>
+                <button type="button">NOT</button>
+                <button type="button">XOR</button>
+                <button type="button">(</button>
+                <button type="button">)</button>
+                <button type="button">BACK</button><br />
+                <p id="preview">Sample Text</p>
+            </div>
+        </div>
+        
+        <div class="Given_TruthTable">
+            Truth Table: <br />
+            <table id="Truth Table">
+            </table>
+        </div>
+
+        <div class="Given_KMap">
+            K-Map: <br />
+            <table id="KMap">
+            </table>
+        </div>
+        <div class="Output">
+            <p id="output">Sample Text</p>
+        </div>
+    </section>
+
+    <script>
+
+        const Given = document.getElementById('given');
+        const NumVar = document.getElementById('numvar');
+        const Evaluate = document.getElementById('evaluate');
+
+        const GKMap = document.querySelector('.Given_KMap');
+        const GTruthTable = document.querySelector('.Given_TruthTable');
+        const GEquation = document.querySelector('.Given_Equation');
+        const OutputDiv = document.querySelector('.Output');
+
+        const VarNames = document.querySelector('.varnames');
+        const BoolFunctions = document.querySelector('.toolfunctions');
+
+        const Output = document.getElementById('output');
+        const KMap = document.getElementById('KMap');
+        const TruthTable = document.getElementById('Truth Table');
+        const PreviewP = document.getElementById('preview');
+
+        function OnlyShowDiv(divToDisplay) {
+            GTruthTable.style.display = "none";
+            GEquation.style.display = "none";
+            GKMap.style.display = "none";
+            OutputDiv.style.display = "none";
+            VarNames.style.display = 'none';
+            BoolFunctions.style.display = 'none';
+
+
+            divToDisplay.style.display = "block";
+        }
+
+        const variables = ['A', 'B', 'C', 'D'];
+
+        var kMap = [];
+        var tTable = [];
+
+        var c = [];
+        var r = [];
+
+        var startCorners = [];
+        var endCorners = [];
+
+        var numvar = parseInt(NumVar.value);
+
+        function NoZeros(startCorner, endCorner) {
+            let topSide = parseInt(numvar / 2);
+            let leftSide = numvar - topSide;
+
+            let rows = 2 ** leftSide;
+            let columns = 2 ** topSide;
+
+            for (var i = parseInt(startCorner[0]); i <= parseInt(endCorner[0]); i++) {
+                for (var j = parseInt(startCorner[1]); j <= parseInt(endCorner[1]); j++) {
+                    if (kMap[i % rows][j % columns] == 0) return 0;
+                }
+            }
+
+            return 1;
+        }
+
+        function GetCoords(startCorner, endCorner) {
+            let topSide = parseInt(numvar / 2);
+            let leftSide = numvar - topSide;
+
+            let rows = 2 ** leftSide;
+            let columns = 2 ** topSide;
+
+            var coords = [];
+            var startRow = parseInt(startCorner[0]);
+            var startCol = parseInt(startCorner[1]);
+            var endRow = parseInt(endCorner[0]);
+            var endCol = parseInt(endCorner[1]);
+
+            for (var i = startRow; i <= endRow; i++) {
+                for (var j = startCol; j <= endCol; j++) {
+                    coords.push((i%rows).toString() + (j%columns).toString());
+                }
+            }
+
+            return coords;
+        }
+
+        function CheckIfInsideBox(startCorner, endCorner) {
+            let topSide = parseInt(numvar / 2);
+            let leftSide = numvar - topSide;
+
+            let rows = 2 ** leftSide;
+            let columns = 2 ** topSide;
+
+            let testCoords = GetCoords(startCorner, endCorner);
+
+            for (var i = 0; i < startCorners.length; i++) {
+                let givenCoords = GetCoords(startCorners[i], endCorners[i]);
+
+                var similarity_count = 0;
+
+                for (var j = 0; j < testCoords.length; j++) {
+                    if (givenCoords.includes(testCoords[j])) similarity_count++;
+                }
+                if (similarity_count >= testCoords.length) return 1;
+            }
+
+            return 0;
+        }
+
+        function GetSimilarity(startCorner, endCorner) {
+            let coords = GetCoords(startCorner, endCorner);
+            let startValue = r[parseInt(coords[0][0])] + c[parseInt(coords[0][1])];
+
+            let res = '';
+
+            for (var i = 1; i < coords.length; i++) {
+                let X = parseInt(coords[i][0]);
+                let Y = parseInt(coords[i][1]);
+
+                let value = r[X] + c[Y];
+
+                for (var j = 0; j < value.length; j++) {
+                    if (value[j] == startValue[j]) {
+                        
+                    }
+                    else {
+                        startValue = startValue.substring(0,j) + 'X' + startValue.substring(j+1);
+                    }
+                }
+            }
+
+            for (var i = 0; i < startValue.length; i++) {
+                switch (startValue[i]) {
+                    case '0':
+                        res += variables[i] + '\'';
+                        break;
+                    case '1':
+                        res += variables[i];
+                        break;
+                    case 'X':
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return res;
+        }
+
+        function EvaluateKMap() {
+            startCorners = [];
+            endCorners = [];
+
+            let topSide = parseInt(numvar / 2);
+            let leftSide = numvar - topSide;
+
+            let rows = 2 ** leftSide;
+            let columns = 2 ** topSide;
+
+            OutputDiv.style.display = 'block';
+
+            //check 16
+            if (2 ** numvar >= 16) {
+                if (NoZeros('00', '33') == 1) {
+                    Output.innerHTML = 'f = 1';
+                    return;
+                }
+            }
+
+            //check 8
+            if (2 ** numvar >= 8) {
+                if (2 ** numvar == 8) {
+                    if (NoZeros('00', '31')) {
+                        Output.innerHTML = 'f = 1';
+                        return;
+                    }
+                }
+
+                //row-dominant
+                if (rows >= 4) {
+                    for (var i = 0; i < columns; i++) {
+                        let startCorner = '0' + i.toString();
+                        let endCorner = '3' + (i + 1).toString();
+                        if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                            startCorners.push(startCorner);
+                            endCorners.push(endCorner);
+                        }
+                    }
+                }
+
+                //column-dominant
+                if (columns >= 4) {
+                    for (var i = 0; i < rows; i++) {
+                        let startCorner = i.toString() + '0';
+                        let endCorner = (i + 1).toString() + '3';
+                        if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                            startCorners.push(startCorner);
+                            endCorners.push(endCorner);
+                        }
+                    }
+                }
+            }
+
+            //check 4
+            if (2 ** numvar >= 4) {
+                if (2 ** numvar == 4) {
+                    if (NoZeros('00', '11')) {
+                        Output.innerHTML = 'f = 1';
+                        return;
+                    }
+                }
+
+                //square
+                for (var i = 0; i < rows; i++) {
+                    for (var j = 0; j < columns; j++) {
+                        let startCorner = i.toString() + j.toString();
+                        let endCorner = (i + 1).toString() + (j + 1).toString();
+                        if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                            startCorners.push(startCorner);
+                            endCorners.push(endCorner);
+                        }
+                    }
+                }
+
+                //row-dominant
+                if (rows >= 4) {
+                    for (var i = 0; i < columns; i++) {
+                        let startCorner = '0' + i.toString();
+                        let endCorner = '3' + i.toString();
+                        if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                            startCorners.push(startCorner);
+                            endCorners.push(endCorner);
+                        }
+                    }
+                }
+
+                //column-dominant
+                if (columns >= 4) {
+                    for (var i = 0; i < rows; i++) {
+                        let startCorner = i.toString() + '0';
+                        let endCorner = i.toString() + '3';
+                        if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                            startCorners.push(startCorner);
+                            endCorners.push(endCorner);
+                        }
+                    }
+                }
+
+            }
+
+            //check 2
+            if (2 ** numvar >= 2) {
+                if (2 ** numvar == 2) {
+                    if (NoZeros('00', '10')) {
+                        Output.innerHTML = 'f = 1';
+                        return;
+                    }
+                }
+
+                //row-dominant
+                if (rows == 2) {
+                    for (var i = 0; i < columns; i++) {
+                        let startCorner = '0' + i.toString();
+                        let endCorner = '1' + i.toString();
+                        if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                            startCorners.push(startCorner);
+                            endCorners.push(endCorner);
+                        }
+                    }
+                }
+                else if (rows >= 2) {
+                    for (var i = 0; i < rows; i++) {
+                        for (var j = 0; j < columns; j++) {
+                            let startCorner = i.toString() + j.toString();
+                            let endCorner = (i + 1).toString() + j.toString();
+                            if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                                startCorners.push(startCorner);
+                                endCorners.push(endCorner);
+                            }
+                        }
+                    }
+                }
+
+                //column-dominant
+                if (columns == 2) {
+                    for (var i = 0; i < rows; i++) {
+                        let startCorner = i.toString() + '0';
+                        let endCorner = i.toString() + '1';
+                        if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                            startCorners.push(startCorner);
+                            endCorners.push(endCorner);
+                        }
+                    }
+                }
+                else if (columns >= 2) {
+                    for (var i=0; i < rows; i++) {
+                        for (var j = 0; j < columns; j++) {
+                            let startCorner = i.toString() + j.toString();
+                            let endCorner = i.toString() + (j + 1).toString();
+                            if (NoZeros(startCorner, endCorner) && CheckIfInsideBox(startCorner, endCorner) == 0) {
+                                startCorners.push(startCorner);
+                                endCorners.push(endCorner);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //check singles
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < columns; j++) {
+                    let corner = i.toString() + j.toString();
+                    if (NoZeros(corner, corner) && CheckIfInsideBox(corner, corner) == 0) {
+                        startCorners.push(corner);
+                        endCorners.push(corner);
+                    }
+                }
+            }
+
+            Output.innerHTML = 'f = ';
+
+            for (var i = 0; i < startCorners.length; i++) {
+                Output.innerHTML += (GetSimilarity(startCorners[i], endCorners[i]));
+                if (i < startCorners.length - 1) Output.innerHTML += ' + ';
+            }
+
+            if (startCorners.length == 0) Output.innerHTML += '0';
+        }
+
+        function GenerateKMap(isActive) {
+            let topSide = parseInt(numvar / 2);
+            let leftSide = numvar - topSide;
+
+            let rows = 2 ** leftSide;
+            let columns = 2 ** topSide;
+
+            while (KMap.hasChildNodes()) {
+                KMap.removeChild(KMap.firstChild);
+            }
+
+            if (isActive) {
+                for (var i = 0; i < rows; i++) {
+                    var row = [];
+                    for (var j = 0; j < columns; j++) {
+                        row.push(0);
+                    }
+                    kMap.push(row);
+                }
+            }
+
+            let MSB = [0, 0, 1, 1];
+            let LSB = [0, 1, 1, 0];
+
+            r = []; c = [];
+
+            for (var i = 0; i < columns; i++) c.push('');
+            for (var i = 0; i < rows; i++) r.push('');
+
+            for (var i = 0; i < topSide; i++) {
+                var tr = document.createElement('tr');
+                for (var j = 0; j < columns + leftSide + 1 * Math.sign(topSide); j++) {
+                    var td = document.createElement('td');
+                    if (j < leftSide) td.innerHTML = 'X';
+                    else if (j == leftSide) {
+                        td.innerHTML = variables[leftSide + topSide - i - 1];
+                    }
+                    else {
+                        if (i == 0) {
+                            td.innerHTML = (LSB[j - leftSide - 1]).toString();
+                            c[j - leftSide - 1] += td.innerHTML;
+                        }
+                        if (i == 1) {
+                            td.innerHTML = (MSB[j - leftSide - 1]).toString();
+                            c[j - leftSide - 1] = td.innerHTML + c[j - leftSide - 1];
+                        }
+                    }
+
+                    tr.appendChild(td);
+                }
+
+                KMap.appendChild(tr);
+            }
+
+            for (var i = 0; i < 1; i++) {
+                var tr = document.createElement('tr');
+                for (var j = 0; j < columns + leftSide + 1 * Math.sign(topSide); j++) {
+                    var td = document.createElement('td');
+                    if (j < leftSide) td.innerHTML = variables[j];
+                    else if (j >= leftSide) {
+                        td.innerHTML = 'X';
+                    }
+
+                    tr.appendChild(td);
+                }
+
+                KMap.appendChild(tr);
+            }
+
+            for (var i = 0; i < rows; i++) {
+                var tr = document.createElement('tr');
+                var row = [];
+                for (var j = 0; j < columns + leftSide + 1 * Math.sign(topSide); j++) {
+                    var td = document.createElement('td');
+                    if (j < leftSide) {
+                        if (leftSide - j - 1 == 0) {
+                            td.innerHTML = LSB[i];
+                            r[i] += td.innerHTML;
+                        }
+                        if (leftSide - j - 1 == 1) {
+                            td.innerHTML = MSB[i];
+                            r[i] += td.innerHTML;                           
+                        }
+                    }
+                    else if (j == leftSide && topSide > 0) td.innerHTML = 'X';
+                    else {
+                        if (isActive) {
+                            var btn = document.createElement('button');
+                            btn.innerHTML = '0';
+                            btn.id = i.toString() + (j - leftSide - 1 * Math.sign(topSide)).toString();
+                            td.appendChild(btn);
+                        }
+                        else {
+                            td.innerHTML = kMap[i][j - leftSide - 1 * Math.sign(topSide)].toString();
+                        }
+                    }
+                    tr.appendChild(td);
+                }
+                KMap.appendChild(tr);
+            }
+        }
+
+        function EvaluateTable() {
+            let topSide = parseInt(numvar / 2);
+            let leftSide = numvar - topSide;
+
+            let rows = 2 ** leftSide;
+            let columns = 2 ** topSide;
+
+            kMap = [];
+
+            for (var i = 0; i < rows; i++) {
+                let row = [];
+                for (var j = 0; j < columns; j++) {
+                    row.push(0);
+                }
+                kMap.push(row);
+            }
+
+            let MSB = [0, 0, 1, 1];
+            let LSB = [0, 1, 1, 0];
+
+            r = []; c = [];
+
+            for (var i = 0; i < columns; i++) c.push('');
+            for (var i = 0; i < rows; i++) r.push('');
+
+            for (var i = 0; i < topSide; i++) {
+                for (var j = 0; j < columns + leftSide + 1 * Math.sign(topSide); j++) {
+                    if(j > leftSide) {
+                        if (i == 0) {
+                            c[j - leftSide - 1] += (LSB[j - leftSide - 1]).toString();
+                        }
+                        if (i == 1) {
+                            c[j - leftSide - 1] = (MSB[j - leftSide - 1]).toString() + c[j - leftSide - 1];
+                        }
+                    }
+                }
+            }
+
+            for (var i = 0; i < rows; i++) {
+                var row = [];
+                for (var j = 0; j < columns + leftSide + 1 * Math.sign(topSide); j++) {
+                    if (j < leftSide) {
+                        if (leftSide - j - 1 == 0) {
+                            r[i] += LSB[i];
+                        }
+                        if (leftSide - j - 1 == 1) {
+                            r[i] += MSB[i];
+                        }
+                    }
+                }
+            }
+
+            for (var i = 0; i < 2 ** numvar; i++) {
+                let binBits = i.toString(2);
+
+                while (binBits.length < numvar) {
+                    binBits = '0' + binBits;
+                }
+
+                let leftBits = binBits.substring(0,leftSide);
+                let topBits = binBits.substring(binBits.length - topSide);
+
+                let row = r.indexOf(leftBits);
+                let col = c.indexOf(topBits);
+
+                kMap[row][col] = tTable[i];
+            }
+
+            GKMap.style.display = 'block';
+
+            GenerateKMap(false);
+            EvaluateKMap();
+        }
+
+        function GenerateTruthTable(isActive) {
+            while (TruthTable.hasChildNodes()) {
+                TruthTable.removeChild(TruthTable.firstChild);
+            }
+
+            if (isActive) {
+                for (var i = 0; i < 2 ** numvar; i++) tTable.push('0');
+            }
+
+            let headerRow = document.createElement('tr');
+            for (var i = 0; i <= numvar; i++) {
+                let th = document.createElement('th');
+
+                if (i < numvar) th.innerHTML = variables[i];
+                else th.innerHTML = 'f';
+
+                headerRow.appendChild(th);
+            }
+            TruthTable.appendChild(headerRow);
+
+            for (var i = 0; i < 2 ** numvar; i++) {
+                let tr = document.createElement('tr');
+
+                for (var j = 0; j <= numvar; j++) {
+                    let td = document.createElement('td');
+                    if (j < numvar) td.innerHTML = Math.sign(i & (2 ** (numvar - j - 1)));
+                    else {
+                        if (isActive) {
+                            let btn = document.createElement('button');
+                            btn.id = i;
+                            btn.innerHTML = '0';
+                            td.appendChild(btn);
+                        }
+                        else {
+                            td.innerHTML = tTable[i];
+                        }
+                    }
+
+                    tr.appendChild(td);
+                }
+
+                TruthTable.appendChild(tr);
+            }
+        }
+
+        function CountChar(s, c) {
+            var counter = 0;
+            for (var i = 0; i < s.length; i++) {
+                if (s[i] == c) counter++;
+            }
+            return counter;
+        }
+
+        function AND(x, y) {
+            if (x == 0 || y == 0) return 0;
+            return 1;
+        }
+        function OR(x, y) {
+            if (x == 0 && y == 0) return 0;
+            return 1;
+        }
+        function NOT(x) {
+            if (x == 1) return 0;
+            return 1;
+        }
+
+        var preview = "";
+
+        function UpdateEquation() {
+            PreviewP.innerHTML = preview;
+        }
+
+        function ResetEquation() {
+            preview = "";
+            UpdateEquation();
+        }
+
+        function GenerateVariables() {
+            const varList = document.querySelector('.variables');
+            ResetEquation();
+
+            while (varList.hasChildNodes()) {
+                varList.removeChild(varList.firstChild);
+            }
+
+            for (var i = 0; i < parseInt(NumVar.value); i++) {
+                const li = document.createElement('li');
+                const varbtn = document.createElement('button');
+                varbtn.innerHTML = variables[i];
+                li.appendChild(varbtn);
+                varList.appendChild(li);
+            }
+        }
+
+        VarNames.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON') {
+                const button = event.target;
+                if (preview.length > 0)
+                    if (variables.includes(preview[preview.length - 1]) || ['\'', ')'].includes(preview[preview.length - 1])) return;
+                preview += variables[variables.indexOf(button.innerHTML)];
+                UpdateEquation();
+            }
+        });
+
+        BoolFunctions.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON') {
+                const button = event.target;
+                if (button.innerHTML == "(") {
+                    if (preview.length > 0)
+                        if (!variables.includes(preview[preview.length - 1]))
+                            preview += '(';
+                    if (preview.length == 0) preview += '(';
+                }
+                if (button.innerHTML == ")" && CountChar(preview, '(') != CountChar(preview, ')'))
+                    if (variables.includes(preview[preview.length - 1]) || preview[preview.length - 1] == '\'')
+                        preview += ')';
+                if (button.innerHTML == "BACK" && preview.length > 0) preview = preview.substring(0, preview.length - 1);
+                if (button.innerHTML == "AND" && preview.length > 0)
+                    if (variables.includes(preview[preview.length - 1]) || preview[preview.length - 1] == ')' || preview[preview.length - 1] == '\'') preview += '*';
+                if (button.innerHTML == "OR" && preview.length > 0)
+                    if (variables.includes(preview[preview.length - 1]) || preview[preview.length - 1] == ')' || preview[preview.length - 1] == '\'') preview += '+';
+                if (button.innerHTML == "XOR" && preview.length > 0)
+                    if (variables.includes(preview[preview.length - 1]) || preview[preview.length - 1] == ')' || preview[preview.length - 1] == '\'') preview += '⊕';
+                if (button.innerHTML == "NOT" && preview.length > 0)
+                    if (variables.includes(preview[preview.length - 1]) || preview[preview.length - 1] == ')' || preview[preview.length - 1] == '\'') preview += '\'';
+
+                UpdateEquation();
+            }
+        });
+
+        function EvaluateTruth(values, equation) {
+            for (var i = 0; i < equation.length; i++) {
+                if (variables.includes(equation[i])) {
+                    equation = equation.substring(0, i) + values[variables.indexOf(equation[i])].toString() + equation.substring(i + 1);
+                }
+            }
+
+            while (equation.includes('(')) {
+                var open = 0;
+                var close = 0;
+                for (var i = 0; i < equation.length; i++) {
+
+                    if (equation[i] == '(') open = i;
+                    if (equation[i] == ')') {
+                        close = i;
+                        equation = equation.substring(0, open) + EvaluateTruth(values, equation.substring(open + 1, close)) + equation.substring(close + 1);
+                        break;
+                    }
+
+                }
+            }
+
+            while (equation.includes('\'')) {
+                let i = equation.indexOf('\'');
+                equation = equation.substring(0, i - 1) + NOT(parseInt(equation[i - 1])).toString() + equation.substring(i + 1);
+            }
+
+            while (equation.includes('⊕')) {
+                let i = equation.indexOf('⊕');
+                let x = equation[i - 1];
+                let y = equation[i + 1];
+                equation = equation.substring(0, i - 1) + x + '\'*' + y + '+' + x + '*' + y + '\'' + equation.substring(i + 2);
+            }
+
+            while (equation.includes('\'')) {
+                let i = equation.indexOf('\'');
+                equation = equation.substring(0, i - 1) + NOT(parseInt(equation[i - 1])).toString() + equation.substring(i + 1);
+            }
+
+            while (equation.includes('*')) {
+                let i = equation.indexOf('*');
+                equation = equation.substring(0, i - 1) + AND(parseInt(equation[i - 1]), parseInt(equation[i + 1])).toString() + equation.substring(i + 2);
+            }
+
+            while (equation.includes('+')) {
+                let i = equation.indexOf('+');
+                equation = equation.substring(0, i - 1) + OR(parseInt(equation[i - 1]), parseInt(equation[i + 1])).toString() + equation.substring(i + 2);
+            }
+
+            return equation[0];
+        }
+
+        function EvaluateEquation() {
+            if (preview.length > 0) {
+                if (!['+', '*', '⊕'].includes(preview[preview.length - 1])) {
+                    tTable = [];
+
+                    for (var i = 0; i < 2 ** numvar; i++) {
+                        tTable.push('0');
+                    }
+
+                    for (var i = 0; i < tTable.length; i++) {
+                        let binBits = i.toString(2);
+                        while (binBits.length < numvar) {
+                            binBits = '0' + binBits;
+                        }
+
+                        tTable[i] = EvaluateTruth(binBits, preview);
+                    }
+
+                    GTruthTable.style.display = 'block';
+
+                    GenerateTruthTable(false);
+                    EvaluateTable();
+                }
+            }
+        }
+
+        function GenerateEquation() {
+            VarNames.style.display = 'block';
+            BoolFunctions.style.display = 'block';
+
+            GenerateVariables();
+        }
+
+        function UpdateGiven() {
+            kMap = [];
+            tTable = [];
+            ResetEquation();
+            startCorners = [];
+            endCorners = [];
+            numvar = parseInt(NumVar.value);
+
+            let val = Given.value;
+            if (val == 'Input Map') {
+                OnlyShowDiv(GKMap);
+                GenerateKMap(true);
+            }
+            if (val == 'Truth Table') {
+                OnlyShowDiv(GTruthTable);
+                GenerateTruthTable(true);
+            }
+            if (val == 'Equation') {
+                OnlyShowDiv(GEquation);
+                GenerateEquation();
+            }
+        }
+
+        Given.addEventListener('change', () => {
+            UpdateGiven();
+        });
+
+        NumVar.addEventListener('change', () => {
+            UpdateGiven();
+        });
+
+        UpdateGiven();
+
+        KMap.addEventListener('click', (event) => {
+            const target = event.target;
+            const value = target.innerHTML;
+
+            let r = parseInt(target.id[0]);
+            let c = parseInt(target.id[1]);
+
+            if (value == '0') {
+                document.getElementById(target.id).innerHTML = '1';
+                kMap[r][c] = 1;
+            }
+            if (value == '1') {
+                document.getElementById(target.id).innerHTML = '0';
+                kMap[r][c] = 0;
+            }
+        });
+
+        TruthTable.addEventListener('click', (event) => {
+            const target = event.target;
+            const value = target.innerHTML;
+
+            if (value == '0') {
+                target.innerHTML = '1';
+                tTable[parseInt(target.id)] = target.innerHTML;
+            }
+            if (value == '1') {
+                target.innerHTML = '0';
+                tTable[parseInt(target.id)] = target.innerHTML;
+            }
+        });
+
+        Evaluate.addEventListener('click', () => {
+            let val = Given.value;
+            if (val == 'Input Map') {
+                EvaluateKMap();
+            }
+            if (val == 'Truth Table') {
+                EvaluateTable();
+            }
+            if (val == 'Equation') {
+                EvaluateEquation();
+            }
+        });
+
+    </script>
+</body>
+</html>
