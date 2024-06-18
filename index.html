@@ -25,6 +25,7 @@
             var a = document.createElement('a');
             a.href = "https://edric-ato.github.io/notion_custom_widgets/" + name.name + "?&target=_blank";
             a.innerHTML = name.name;
+            a.target = '_blank';
             li.appendChild(a);
             navigation.appendChild(li);
         }
