@@ -38,7 +38,45 @@
     </style>
 </head>
 <body>
-  Enter Fuel Chemical Composition: <input id='fuel' required /> <br />
-  <button id='molar_mass'>Calculate Molar Mass</button> <button id='combust'>Combust</button>
+    <span>
+        Enter Fuel Chemical Composition: <input type="text" id='fuel' required /> <br />
+        <button id='molar_mass'>Calculate Molar Mass</button> <button id='combust'>Combust</button>
+        <div class="Molar_Mass">
+            <p id="mm">Sample Text</p>
+        </div>
+        <div class="Combust">
+            <p id="balanced_equation">Sample Text</p>
+            Enter excess air (%): <input type="number" id="excess_air" required value="0" />
+            <p id="air-fuel_ratio">Sample Text</p>
+        </div>
+    </span>
+
+    <script>
+        const elements = ['H','C','O','N'];
+        const m = [1.01, 12.01, 16, 14.01];
+
+        const Fuel = document.getElementById('fuel');
+        const MolarMassBtn = document.getElementById('molar_mass');
+        const MolarMassP = document.getElementById('mm');
+        const CombustBtn = document.getElementById('combust');
+        const EquationP = document.getElementById('balanced_equation');
+        const ExcessAir = document.getElementById('excess_air');
+        const AFRatioP = document.getElementById('air-fuel_ratio');
+
+        const MolarMassDiv = document.querySelector('.Molar_Mass');
+        const CombustDiv = document.querySelector('.Combust');
+
+        function GetMolarMass(){
+            let f = Fuel.value;
+            var e = [];
+            var n = [];
+            var current = '';
+
+            for(var i=0; i<f.length; i++){
+                if(f[i].isDigit()) console.log('Here');
+                current += f[i];
+            }
+        }
+    </script>
 </body>
 </html>
