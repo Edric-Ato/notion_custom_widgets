@@ -1,0 +1,44 @@
+<html>
+<head>
+  <style>
+        section {
+            background: pink;
+            border: 3px solid black;
+            padding: 5px;
+            width: auto;
+            height: fit-content;
+        }
+
+        div {
+            display: none;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 1px;
+            padding: 1px;
+            overflow: auto;
+        }
+        li{
+            float: left;
+        }
+
+        table{
+            border: 1px solid;
+            border-collapse: collapse;
+            width: auto;
+        }
+
+        tr, td, th {
+            border: 1px solid;
+            border-collapse: collapse;
+            width: 25px;
+        }
+
+    </style>
+</head>
+<body>
+  Enter Fuel Chemical Composition: <input id='fuel' required /> <br />
+  <button id='molar_mass'>Calculate Molar Mass</button> <button id='combust'>Combust</button>
+</body>
+</html>
