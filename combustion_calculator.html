@@ -66,6 +66,11 @@
         const MolarMassDiv = document.querySelector('.Molar_Mass');
         const CombustDiv = document.querySelector('.Combust');
 
+        function isNum(c){
+            if(c >= '0' && c<= '9') return true;
+            return false;
+        }
+
         function GetMolarMass(){
             let f = Fuel.value;
             var e = [];
@@ -73,7 +78,7 @@
             var current = '';
 
             for(var i=0; i<f.length; i++){
-                if(f[i].isDigit) console.log('Here');
+                if(isNum(f[i])) console.log('Here');
                 current += f[i];
             }
         }
