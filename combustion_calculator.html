@@ -71,6 +71,11 @@
             return false;
         }
 
+        function isCap(c){
+            if(c >= 'A' && c <= 'Z') return true;
+            return false;
+        }
+
         function GetMolarMass(){
             let f = Fuel.value;
             var e = [];
@@ -78,9 +83,24 @@
             var current = '';
 
             for(var i=0; i<f.length; i++){
-                if(isNum(f[i])) console.log('Here');
+                if(isNum(f[i]) && !isNum(current[current.length - 1])){
+                    e.push(current);
+                    current = '';
+                }
+                else if(i>0 && isCap(f[i])){
+                    e.push(current);
+                    current = '';
+                    n.push(1);
+                }
+                else if(!isNum(f[i]) && isNum(current[current.length - 1])){
+                    n.push(parseInt(current));
+                    current = '';
+                }
                 current += f[i];
             }
+
+            console.log(e);
+            console.log(n)
         }
 
         MolarMassBtn.addEventListener('click', ()=>{
