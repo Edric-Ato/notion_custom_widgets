@@ -154,7 +154,7 @@
                     index = fuel_elements.indexOf(current);
                     current = '';
                 }
-                else if(i>0 && isCap(f[i])){
+                else if(i>0 && isCap(f[i]) && !isNum(current[current.length - 1])){
                     index = fuel_elements.indexOf(current);
                     current = '';
                     fuel_subscripts[index] += 1;
