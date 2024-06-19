@@ -150,6 +150,15 @@
                 else if(!isNum(f[i]) && isNum(current[current.length - 1])){
                     fuel_subscripts[index] += parseInt(current);
                 }
+                current += f[i];
+
+                if(i == f.length - 1){
+                    if(isNaN(parseInt(current))){
+                        index = fuel_elements.indexOf(current);
+                        fuel_subscripts[index] += 1;
+                    }
+                    else fuel_subscripts[index] = (parseInt(current));
+                }
             }
 
             console.log(fuel_subscripts);
