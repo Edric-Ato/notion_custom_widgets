@@ -185,6 +185,7 @@
             c[4] = 3.76 * c[1];
 
             EquationP.innerHTML = c[0].toString() + Fuel.value + ' + ' + c[1].toString() + '(O2 + 3.76N2) → ' + c[2].toString() + 'CO2 + ' + c[3].toString() + 'H2O + ' + c[4].toString() + 'O2';
+            CalculateAF();
         }
 
         function CalculateAF(){
@@ -201,6 +202,10 @@
         CombustBtn.addEventListener('click', ()=>{
             BalanceCombustion();
             ShowOnlyDiv(CombustDiv);
+        })
+
+        ExcessAir.addEventListener('change', ()=>{
+            CalculateAF();
         })
     </script>
 </body>
