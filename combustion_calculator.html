@@ -171,35 +171,36 @@
                 }
             }
 
-            console.log(fuel_subscripts);
-
             c = [1,0,0,0,0];
             c[2] = c[0] * fuel_subscripts[0];
             c[3] = c[0] * fuel_subscripts[1] / 2;
             c[1] = (2*c[2] + c[3] - c[0] * fuel_subscripts[2])/2;
-
-            console.log(indexOfFractional(c));
             
             while(indexOfFractional(c) >= 0){
                 var index = indexOfFractional(c);
                 var multiplier = 1/(c[index] - parseInt(c[index]));
 
                 for(var i=0; i<c.length; i++) c[i] *= multiplier;
-
-                console.log(c);
             }
             c[4] = 3.76 * c[1];
 
-            console.log(c);
+            EquationP.innerHTML = c[0].toString() + Fuel.value + ' + ' + c[1].toString() + '(O2 + 3.76N2) → ' + c[2].toString() + 'CO2 + ' + c[3].toString() + 'H2O + ' + c[4].toString() + 'O2';
         }
 
         function CalculateAF(){
+            let h = 1+parseFloat(ExcessAir.value)/100;
 
+            var m = GetMolarMass();
+            let AF = h * c[1]*4.76*28.96 / c[0] / m;
+
+            AFRatioP.innerHTML = AF.tostring + 'kg of air is required to completely combust 1kg of ' + Fuel.value;
+
+            if(parseFloat(ExcessAir.value) > 0) AFRatioP.innerHTML += ' with ' + ExcessAir.value + '% excess air';
         }
 
         CombustBtn.addEventListener('click', ()=>{
-            var m = GetMolarMass();
             BalanceCombustion();
+            ShowOnlyDiv(CombustDiv);
         })
     </script>
 </body>
