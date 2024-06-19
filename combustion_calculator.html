@@ -196,7 +196,7 @@
 
             console.log(AF);
 
-            AFRatioP.innerHTML = AF.tostring + 'kg of air is required to completely combust 1kg of ' + Fuel.value;
+            AFRatioP.innerHTML = (AF.toFixed(2)).toString() + 'kg of air is required to completely combust 1kg of ' + Fuel.value;
 
             if(parseFloat(ExcessAir.value) > 0) AFRatioP.innerHTML += ' with ' + ExcessAir.value + '% excess air';
         }
