@@ -177,6 +177,8 @@
             c[2] = c[0] * fuel_subscripts[0];
             c[3] = c[0] * fuel_subscripts[1] / 2;
             c[1] = (2*c[2] + c[3] - c[0] * fuel_subscripts[2]);
+
+            console.log(indexOfFractional(c));
             
             while(indexOfFractional(c) >= 0){
                 var index = indexOfFractional(c);
