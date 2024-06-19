@@ -38,7 +38,7 @@
     </style>
 </head>
 <body>
-    <span>
+    <section>
         Enter Fuel Chemical Composition: <input type="text" id='fuel' required /> <br />
         <button id='molar_mass'>Calculate Molar Mass</button> <button id='combust'>Combust</button>
         <div class="Molar_Mass">
@@ -49,7 +49,7 @@
             Enter excess air (%): <input type="number" id="excess_air" required value="0" />
             <p id="air-fuel_ratio">Sample Text</p>
         </div>
-    </span>
+    </section>
 
     <script>
         const elements = ['H','C','O','N'];
@@ -65,6 +65,13 @@
 
         const MolarMassDiv = document.querySelector('.Molar_Mass');
         const CombustDiv = document.querySelector('.Combust');
+
+        function ShowOnlyDiv(d){
+            MolarMassDiv.style.display = 'none';
+            CombustDiv.style.display = 'none';
+
+            d.style.display = 'block';
+        }
 
         function isNum(c){
             if(c >= '0' && c<= '9') return true;
@@ -101,16 +108,21 @@
 
                 if(i == f.length - 1){
                     if(isNaN(parseInt(current))) e.push(current);
-                    else n.push(current);
+                    else n.push(parseInt(current));
                 }
             }
-
-            console.log(e);
-            console.log(n)
+            
+            var res = 0;
+            for(var i=0; i<e.length; i++){
+                res += m[elements.findIndex(e[i])] * n[i];
+            }
         }
 
         MolarMassBtn.addEventListener('click', ()=>{
-            GetMolarMass();
+            var m = GetMolarMass();
+            ShowOnlyDiv(MolarMassDiv);
+
+            MolarMassP.innerHTML = 'Molar mass of ' + F.value + ' = ' + m.toString();
         })
     </script>
 </body>
