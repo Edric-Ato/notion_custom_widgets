@@ -130,6 +130,13 @@
             MolarMassP.innerHTML = 'Molar mass of ' + Fuel.value + ' = ' + m.toString() + 'g/mol';
         })
 
+        function indexOfFractional(a){
+            for(var i = 0; i < a.length; i++){
+                if(parseInt(a[i]) != a[i]) return i;
+            }
+            return -1;
+        }
+
         function BalanceCombustion(){
             var f = Fuel.value;
             const fuel_elements = 'CHO';
@@ -161,7 +168,20 @@
                 }
             }
 
-            console.log(fuel_subscripts);
+            var c = [1,0,0,0,0];
+            c[2] = coefficients[0] * fuel_subscripts[0];
+            c[3] = coefficients[0] * fuel_subscripts[1] / 2;
+            c[1] = (2*c[2] + c[3] - c[0] * fuel_subscripts[2]);
+            
+            while(indexOfFractional(c) >= 0){
+                var index = indexOfFractional(c);
+                var multiplier = = 1/(c[index] - parseInt(c[index]));
+
+                for(var i=0; i<c.length; i++) c[i] *= multiplier;
+            }
+            c[4] = 3.76 * c[1];
+
+            console.log(c);
         }
 
         function CalculateAF(){
@@ -169,6 +189,7 @@
         }
 
         CombustBtn.addEventListener('click', ()=>{
+            var m = GetMolarMass();
             BalanceCombustion();
         })
     </script>
