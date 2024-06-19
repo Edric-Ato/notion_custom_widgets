@@ -94,7 +94,7 @@
                     e.push(current);
                     current = '';
                 }
-                else if(i>0 && isCap(f[i])){
+                else if(i>0 && isCap(f[i]) && !isNum(current[current.length - 1])){
                     e.push(current);
                     current = '';
                     n.push(1);
