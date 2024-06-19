@@ -107,7 +107,10 @@
                 current += f[i];
 
                 if(i == f.length - 1){
-                    if(isNaN(parseInt(current))) e.push(current);
+                    if(isNaN(parseInt(current))){
+                        e.push(current);
+                        n.push(1);
+                    }
                     else n.push(parseInt(current));
                 }
             }
@@ -124,8 +127,37 @@
             var m = GetMolarMass();
             ShowOnlyDiv(MolarMassDiv);
 
-            MolarMassP.innerHTML = 'Molar mass of ' + Fuel.value + ' = ' + m.toString();
+            MolarMassP.innerHTML = 'Molar mass of ' + Fuel.value + ' = ' + m.toString() + 'g/mol';
         })
+
+        function BalanceCombustion(){
+            var f = Fuel.value;
+            const fuel_elements = 'CHO';
+            var current = '';
+            var index = 0;
+            var fuel_subscripts = [0,0,0];
+
+            for(var i=0; i<f.length; i++){
+                if(isNum(f[i]) && !isNum(current[current.length - 1])){
+                    index = fuel_elements.indexOf(current);
+                    current = '';
+                }
+                else if(i>0 && isCap(f[i])){
+                    index = fuel_elements.indexOf(current);
+                    current = '';
+                    fuel_subscripts[index] += 1;
+                }
+                else if(!isNum(f[i]) && isNum(current[current.length - 1])){
+                    fuel_subscripts[index] += parseInt(current);
+                }
+            }
+
+            console.log(fuel_subscripts);
+        }
+
+        function CalculateAF(){
+
+        }
     </script>
 </body>
 </html>
