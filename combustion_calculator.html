@@ -96,7 +96,13 @@
                     n.push(parseInt(current));
                     current = '';
                 }
+
                 current += f[i];
+
+                if(i == f.length - 1){
+                    if(isNaN(parseInt(current))) e.push(current);
+                    else n.push(current);
+                }
             }
 
             console.log(e);
